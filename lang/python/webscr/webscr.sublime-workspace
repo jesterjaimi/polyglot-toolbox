@@ -1,0 +1,358 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "scrape4.py",
+			"settings":
+			{
+				"buffer_size": 640,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Pull Request Log\n================\n\n2018-04-06\n----------\nHim You Ten <notifications@github.com>\n11:52 AM (2 hours ago)\n\nto VICEMedia/ansi., me, Author \n@himyouten requested changes on this pull request.\n\nIn roles/bia-dev-ws/tasks/domo-activitylogs.yml:\n\n> @@ -0,0 +1,30 @@\n+# domo-activitylogs.yml\n+- tags: update-app-domo-activitylogs\nthis is a role task, not a full play - drop the tags, hosts and connection and tasks:\n\nSee other task files in this directory for examples\n\nDONE\n\nIn roles/bia-dev-ws/tasks/domo-activitylogs.yml:\n\n> @@ -0,0 +1,30 @@\n+# domo-activitylogs.yml\n+- tags: update-app-domo-activitylogs\nyou need to modify the tasks/main/yml file and include this domo-activitylogs.yml file, and that's where the tag is applied, plenty of examples in the file\n\nDONE \n\nIn roles/bia-dev-ws/tasks/domo-activitylogs.yml:\n\n> +- name: create config\n+  ini_file:\n+    path: \"{{ domo.activitylogs.app_config }}\"\n+    section: \"{{ item.section }}\"\n+    option: \"{{ item.option }}\"\n+    value: \"{{ item.value }}\"\n+  with_items:\n+    - { section: \"default\", option: \"DOMO_CLIENT_ID\", value: \"{{ domo.client_id }}\" }\n+    - { section: \"default\", option: \"DOMO_CLIENT_SECRET\", value: \"{{ domo.client_secret }}\" }\n+    - { section: \"default\", option: \"DOMO_DATASET_ID\", value: \"{{domo.activitylogs.dataset_id}}\" }\n+\n+- name: cron domo-activitylogs\n+  cron:\n+    minute: 30\n+    user: root\n+    job: \"{{domo.activitylogs.cron_job}}\"\nput the actual job here, e.g.\"/usr/local/sbin/node-cron.sh domo-activitylogs app.js >> /var/log/domo-activitylogs.log 2>&1\"\n\n\nIts specific and doesn't change between dev/prod so no need to make it into a var\n\nDONE\n\nIn roles/bia-dev-ws/tasks/domo-activitylogs.yml:\n\n> @@ -0,0 +1,30 @@\n+# domo-activitylogs.yml\n+- tags: update-app-domo-activitylogs\n+- hosts: localhost\n+  connection: local\n+\n+tasks:\n+# config goes under roles/bia-dev-ws/tasks\n+- name: create dirs \nthis should be part of the deploy play\n\nDONE\n\nIn roles/bia-dev-ws/tasks/domo-activitylogs.yml:\n\n> @@ -0,0 +1,30 @@\n+# domo-activitylogs.yml\n+- tags: update-app-domo-activitylogs\n+- hosts: localhost\n+  connection: local\n+\n+tasks:\n+# config goes under roles/bia-dev-ws/tasks\n+- name: create dirs \n+  file: path={{ item }} state=directory owner=root mode=0755\n+  with_items:\n+    - \"{{ domo.activitylogs.app_dir }}\"\n+    - \"{{ domo.activitylogs.release_dir }}\"\n+      \n+- name: create config\n+  ini_file:\njust use template, simpler\n\nSee tasks/vice-bi-pipelines-basic.yml\n\nDONE\n\nIn roles/bia-dev-ws/files/etc/ansible/plays/deploy-domo-activitylogs.yml:\n\n> @@ -0,0 +1,13 @@\n+# deploy-domo-activitylogs.yml\n+- tags: update-app-domo-activity-log\n+- hosts: localhost\n+  connection: local\nyou need the vars: section with the vars that were added to inventory. This play is run on the bia-dev-ws1 box directly by a user on the instance, not via the deploy instance, so it doesn't have access to the ansible/inventory from this repo\n\nDONE\n\nIn inventory/group_vars/bia-dev-ws/base:\n\n> @@ -51,3 +51,16 @@ luigi:\n   audit_logging_schema: dev\n   domo:\n    redshift_schema: dev_ws1\n+\n+domo:\n+  activitylogs:\n+    repo: \"git@github.com:VICEMedia/domo-activitylogs.git\"\nthese should be in the deploy play as vars, not here. see deploy play comment\n\nIn inventory/group_vars/bia-dev-ws/base:\n\n> @@ -51,3 +51,16 @@ luigi:\n   audit_logging_schema: dev\n   domo:\n    redshift_schema: dev_ws1\n+\n+domo:\n+  activitylogs:\n+    repo: \"git@github.com:VICEMedia/domo-activitylogs.git\"\n+    app_name: \"domo-activitylogs\"\n+    app_script: \"app.js\"\n+    app_dir: \"/opt/{{app_name}}\"\n+    release_ver: \"{{ansible_date_time.year}}-{{ansible_date_time.month}}-{{ansible_date_time.day}}-{{ansible_date_time.hour}}-{{ansible_date_time.minute}}\"\n+    release_dir: \"{{app_dir}}releases/LIVE/{{app_name}}-{{release_ver}}\"\n+    release_sym_link: \"{{app_dir}}releases/LIVE/{{app_name}}\"\n+    app_config: \"/etc/sysconfig/node-crons/{{app_name}}\"\n+    dataset_id: \"a4ceef73-4afd-4b72-96bb-8635fa496962\"\n+    cron_job: \"/usr/local/sbin/node-cron.sh {{app_name}} {{app_script}} >> /var/log/{{app_name}}.log 2>&1\"\ndrop cron_job var, not needed\n\nDONE\n",
+			"file": "/Users/jester/Projects/Vice/log/pull_request_log.txt",
+			"file_size": 18,
+			"file_write_time": 131675137907660319,
+			"settings":
+			{
+				"buffer_size": 4093,
+				"line_ending": "Unix",
+				"name": "Pull Request Log"
+			}
+		},
+		{
+			"contents": "/jirio create task taskname :desc task_descr :project DEV\n\n/jirio create task taskname :desc task_descr :project DEV",
+			"file": "/Users/jester/Projects/Vice/hacks",
+			"file_size": 57,
+			"file_write_time": 131677706140623117,
+			"settings":
+			{
+				"buffer_size": 116,
+				"line_ending": "Unix",
+				"name": "/jirio create task taskname :desc task_descr :proj"
+			}
+		},
+		{
+			"file": "/Users/jester/Projects/Vice/analysis/s3/rs_stash_load_error_logs.sql",
+			"settings":
+			{
+				"buffer_size": 2263,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "/*"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 90.0,
+		"history":
+		[
+			"exit()",
+			"print('foo')",
+			"import os",
+			"print 'foo'",
+			"echo 'foo'"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/jester/Projects/Polyglot/toolbox/lang/python/webscr/scrape4.py",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/config/database.yml",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/Gemfile",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/config/routes.rb",
+		"/Users/jester/Downloads/dev-domo-activitylogs.yml",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/app/controllers/book_controller.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/db/migrate/20171213191537_subjects.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/rails_commands.txt",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/app/models/subject.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/app/models/book.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/db/migrate/20171213191527_books.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/db/migrate/20171213172949_books.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/db/migrate/20171213173002_subjects.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/db/migrate/001_subjects.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/db/migrate/20171213172555_create_subjects.rb",
+		"/Users/jester/Projects/Polyglot/toolbox/lang/ruby/rails/library/db/migrate/20171213172534_create_books.rb"
+	],
+	"find":
+	{
+		"height": 0.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "scrape4.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 640,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								596,
+								596
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"syntax": "Packages/Python/Python.sublime-syntax"
+						},
+						"translation.x": 9.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 1,
+					"file": "/Users/jester/Projects/Vice/log/pull_request_log.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4093,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4092,
+								4092
+							]
+						],
+						"settings":
+						{
+							"auto_name": "Pull Request Log",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1911.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/jester/Projects/Vice/hacks",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 116,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								86,
+								78
+							]
+						],
+						"settings":
+						{
+							"auto_name": "/jirio create task taskname :desc task_descr :proj",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/jester/Projects/Vice/analysis/s3/rs_stash_load_error_logs.sql",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2263,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								2263
+							]
+						],
+						"settings":
+						{
+							"auto_name": "/*",
+							"syntax": "Packages/SQL/SQL.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.217859076761,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "webscr.sublime-project",
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 1,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
